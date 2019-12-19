@@ -6,7 +6,14 @@ router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-router.post("/uploadfile", upload.single("myFile"), async (req, res, next) => {
+const multer = require("multer");
+var upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    cb(null, true);
+  }
+});
+router.post("/uploadfile", upload.single("voice"), async (req, res, next) => {
   let wdRes = res;
   let wdReq = req;
   const file = req.file;
@@ -35,10 +42,14 @@ router.post("/uploadfile", upload.single("myFile"), async (req, res, next) => {
   };
   // Here is the way you use SDK to conver data
   // your API Key to verify with server
-  var apikey = 'testExample';
+  var apiKey = req.body.apiKey;
+  console.log('apikey------', apiKey);
   // Call API with apiKey and formdata
-  var result = await sdk.convertAudio(apikey, formData);
+  console.log('formData------', formData);
+  var result = sdk(apiKey, formData).then(data => { console.log('data: ', data);  return res.json(data)})
+  .catch(err => console.log(err));
   //show result
-  console.log('result:   ', result);
+  // console.log('result:   ', result);
+  // res.json({ message: result });
 })
 module.exports = router;
